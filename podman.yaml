@@ -1,0 +1,10 @@
+---
+- name: Install Podman
+  hosts: server
+  become: yes
+  tasks:
+    - dnf:
+        name:
+          - podman
+          - cockpit-podman
+        state: latest

@@ -1,0 +1,6 @@
+---
+- name: Setup Cockpit
+  import_playbook: cockpit.yaml
+
+- name: Setup Podman
+  import_playbook: podman.yaml

@@ -6,7 +6,6 @@
     - dnf:
         name:
           - cockpit
-          - cockpit-podman
           - cockpit-storaged
           - cockpit-machines
         state: latest
