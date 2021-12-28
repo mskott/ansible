@@ -1,0 +1,32 @@
+---
+- name: Install Cockpit
+  hosts: server
+  become: yes
+  tasks:
+    - dnf:
+        name:
+          - cockpit
+          - cockpit-podman
+          - cockpit-storaged
+          - cockpit-machines
+        state: latest
+
+- name: Enable and start Cockpit
+  hosts: server
+  become: yes
+  tasks:
+    - systemd:
+        name: cockpit.socket
+        enabled: yes
+        state: started
+
+- name: Setup firewall to allow cockpit
+  hosts: server
+  become: yes
+  tasks:
+    - firewalld:
+        service: cockpit
+        permanent: yes
+        state: enabled
+        zone: public
+        immediate: yes
