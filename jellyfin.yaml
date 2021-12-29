@@ -1,0 +1,41 @@
+---
+- name: Create directories
+  hosts: jellyfin
+  tasks:
+    - file:
+        path: '{{ item }}'
+        state: directory
+        mode: 0755
+        recurse: true
+      loop:
+        - '{{ jellyfin_cache }}'
+        - '{{ jellyfin_config }}'
+        - '{{ jellyfin_media }}'
+
+- name: Run container
+  hosts: jellyfin
+  tasks:
+    - containers.podman.podman_container:
+        name: Jellyfin
+        image: docker.io/jellyfin/jellyfin:latest
+        label: "io.containers.autoupdate=registry"
+        state: started
+        volumes:
+          - '{{ jellyfin_cache }}:/cache:Z'
+          - '{{ jellyfin_config }}:/config:Z'
+          - '{{ jellyfin_media }}:/media:ro,z'
+        publish:
+          - 8096:8096/tcp
+        userns: keep-id
+        user: 1000:1000
+
+- name: Configure firewall
+  hosts: jellyfin
+  become: yes
+  tasks:
+    - firewalld:
+        state: enabled
+        permanent: yes
+        zone: public
+        immediate: yes
+        port: 8096/tcp

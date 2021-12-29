@@ -4,3 +4,6 @@
 
 - name: Setup Podman
   import_playbook: podman.yaml
+
+- name: Setup Jellyfin
+  import_playbook: jellyfin.yaml
