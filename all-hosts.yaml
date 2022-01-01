@@ -1,4 +1,7 @@
 ---
+- name: Basic setup
+  import_playbook: basics.yaml
+
 - name: Setup Cockpit
   import_playbook: cockpit.yaml
 
