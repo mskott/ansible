@@ -8,3 +8,11 @@
           - podman
           - cockpit-podman
         state: latest
+- name: Enable auto-update timer
+  hosts: server
+  become: yes
+  tasks:
+    - systemd:
+        name: podman-auto-update.timer
+        enabled: yes
+        state: started
