@@ -1,0 +1,35 @@
+---
+# Create VM using cloud-init and a cloud image
+- name: Create vm
+  hosts: localhost
+  vars:
+    base_image: /home/martin/Downloads/debian-11-generic-amd64.qcow2
+    dest_path: /home/martin/tmp/cloud.img
+    disk_size: 10G
+    user_data: /home/martin/tmp/user-data.yaml
+    meta_data: /home/martin/tmp/meta-data.yaml
+    vm_name: my-cloud
+  tasks:
+    # Get list of VMs
+    - command:
+        cmd: virsh -c qemu:///system list --name --all
+      register: machines
+    # Create disk image
+    - command:
+        cmd: "qemu-img create -b {{ base_image|quote }} -f qcow2 -F qcow2 {{ dest_path|quote }} {{ disk_size }}"
+        creates: "{{ dest_path }}"
+    # Create VM
+    - command:
+        argv:
+          - virt-install
+          - "--name={{ vm_name}}"
+          - --ram=2048
+          - --vcpus=2
+          - --import
+          - "--disk=path={{ dest_path }}"
+          - --os-variant=debian11
+          - "--cloud-init=user-data={{ user_data|quote }},meta-data={{ meta_data|quote }},disable=on,root-password-generate=on"
+          - --network=network=default
+          - --connect=qemu:///system
+          - --noautoconsole
+      when: vm_name not in machines.stdout_lines

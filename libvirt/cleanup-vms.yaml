@@ -1,0 +1,17 @@
+---
+- name: Cleanup VM
+  hosts: localhost
+  vars:
+    dest_image: /home/martin/tmp/cloud.img
+    vm_name: my-cloud
+  tasks:
+    # Shutdown VM
+    - command: "virsh -c qemu:///system shutdown {{ vm_name }}"
+      ignore_errors: yes
+    # Remove VM
+    - command: "virsh -c qemu:///system undefine {{ vm_name }}"
+      ignore_errors: yes
+    # Remove disk image
+    - file:
+        path: "{{ dest_image }}"
+        state: absent
