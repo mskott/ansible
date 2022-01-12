@@ -12,22 +12,45 @@
         - '{{ jellyfin_config }}'
         - '{{ jellyfin_media }}'
 
-- name: Run container
+## This is how the .service file for Systemd was generated, but it interferes with
+## the service now that it is running
+# - name: Run container
+#   hosts: jellyfin
+#   tasks:
+#     - containers.podman.podman_container:
+#         name: Jellyfin
+#         image: docker.io/jellyfin/jellyfin:latest
+#         label: "io.containers.autoupdate=registry"
+#         state: created
+#         volumes:
+#           - '{{ jellyfin_cache }}:/cache:Z'
+#           - '{{ jellyfin_config }}:/config:Z'
+#           - '{{ jellyfin_media }}:/media:ro,z'
+#         publish:
+#           - 8096:8096/tcp
+#         userns: keep-id
+#         user: 1000:1000
+#         generate_systemd:
+#           path: /home/martin/tmp
+#           restart_policy: always
+#           new: yes
+
+- name: Write Jellyfin service definition
   hosts: jellyfin
+  become: yes
   tasks:
-    - containers.podman.podman_container:
-        name: Jellyfin
-        image: docker.io/jellyfin/jellyfin:latest
-        label: "io.containers.autoupdate=registry"
-        state: started
-        volumes:
-          - '{{ jellyfin_cache }}:/cache:Z'
-          - '{{ jellyfin_config }}:/config:Z'
-          - '{{ jellyfin_media }}:/media:ro,z'
-        publish:
-          - 8096:8096/tcp
-        userns: keep-id
-        user: 1000:1000
+    - file:
+        path: /usr/local/lib/systemd/system
+        owner: root
+        group: root
+        mode: 0755
+        state: directory
+    - template:
+        src: container-Jellyfin.service.j2
+        dest: /usr/local/lib/systemd/system/container-Jellyfin.service
+        owner: root
+        group: root
+        mode: 0644
 
 - name: Configure firewall
   hosts: jellyfin
