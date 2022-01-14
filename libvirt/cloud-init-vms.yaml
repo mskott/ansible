@@ -3,23 +3,32 @@
 - name: Create vm
   hosts: localhost
   vars:
-    base_image: /home/martin/Downloads/debian-11-generic-amd64.qcow2
-    dest_path: /home/martin/tmp/cloud.img
-    disk_size: 10G
-    user_data: /home/martin/tmp/user-data.yaml
-    meta_data: /home/martin/tmp/meta-data.yaml
     vm_name: my-cloud
+    base_image: /home/martin/Downloads/debian-11-generic-amd64.qcow2
+    target_dir: /home/martin/tmp
+    dest_path: '{{ target_dir }}/{{ vm_name }}_disk.img'
+    disk_size: 10G
+    user_data: '{{ target_dir }}/{{ vm_name }}_user-data.yaml'
+    meta_data: '{{ target_dir }}/{{ vm_name }}_meta-data.yaml'
   tasks:
-    # Get list of VMs
-    - command:
+    - name: Get list of VMs
+      command:
         cmd: virsh -c qemu:///system list --name --all
       register: machines
-    # Create disk image
-    - command:
+    - name: Create disk image
+      command:
         cmd: "qemu-img create -b {{ base_image|quote }} -f qcow2 -F qcow2 {{ dest_path|quote }} {{ disk_size }}"
         creates: "{{ dest_path }}"
-    # Create VM
-    - command:
+    - name: Write meta-data.yaml
+      template:
+        src: meta-data.yaml.j2
+        dest: '{{ meta_data }}'
+    - name: Write user-data.yaml
+      template:
+        src: user-data.yaml.j2
+        dest: '{{ user_data }}'
+    - name: Create VM
+      command:
         argv:
           - virt-install
           - "--name={{ vm_name}}"

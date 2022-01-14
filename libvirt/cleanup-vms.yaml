@@ -2,16 +2,27 @@
 - name: Cleanup VM
   hosts: localhost
   vars:
-    dest_image: /home/martin/tmp/cloud.img
     vm_name: my-cloud
+    target_dir: /home/martin/tmp
+    dest_path: '{{ target_dir }}/{{ vm_name }}_disk.img'
+    user_data: '{{ target_dir }}/{{ vm_name }}_user-data.yaml'
+    meta_data: '{{ target_dir }}/{{ vm_name }}_meta-data.yaml'
   tasks:
-    # Shutdown VM
-    - command: "virsh -c qemu:///system shutdown {{ vm_name }}"
+    - name: Shutdown VM
+      command: "virsh -c qemu:///system shutdown {{ vm_name }}"
       ignore_errors: yes
-    # Remove VM
-    - command: "virsh -c qemu:///system undefine {{ vm_name }}"
+    - name: Remove VM
+      command: "virsh -c qemu:///system undefine {{ vm_name }}"
       ignore_errors: yes
-    # Remove disk image
-    - file:
-        path: "{{ dest_image }}"
+    - name:  Remove disk image
+      file:
+        path: "{{ dest_path }}"
+        state: absent
+    - name:  Remove meta-data.yaml
+      file:
+        path: "{{ meta_data }}"
+        state: absent
+    - name:  Remove user-data.yaml
+      file:
+        path: "{{ user_data }}"
         state: absent
