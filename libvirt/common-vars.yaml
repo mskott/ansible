@@ -1,0 +1,9 @@
+---
+# Variables shared between cloud-init-vms and cleanup-vms
+vm_name: my-cloud
+base_image: /home/martin/Downloads/debian-11-generic-amd64.qcow2
+target_dir: /home/martin/tmp
+dest_path: '{{ target_dir }}/{{ vm_name }}_disk.img'
+disk_size: 10G
+user_data: '{{ target_dir }}/{{ vm_name }}_user-data.yaml'
+meta_data: '{{ target_dir }}/{{ vm_name }}_meta-data.yaml'

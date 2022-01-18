@@ -2,15 +2,9 @@
 # Create VM using cloud-init and a cloud image
 - name: Create vm
   hosts: localhost
-  vars:
-    vm_name: my-cloud
-    base_image: /home/martin/Downloads/debian-11-generic-amd64.qcow2
-    target_dir: /home/martin/tmp
-    dest_path: '{{ target_dir }}/{{ vm_name }}_disk.img'
-    disk_size: 10G
-    user_data: '{{ target_dir }}/{{ vm_name }}_user-data.yaml'
-    meta_data: '{{ target_dir }}/{{ vm_name }}_meta-data.yaml'
   tasks:
+    - name: Load common variables
+      include_vars: common-vars.yaml
     - name: Get list of VMs
       command:
         cmd: virsh -c qemu:///system list --name --all
@@ -31,7 +25,7 @@
       command:
         argv:
           - virt-install
-          - "--name={{ vm_name}}"
+          - "--name={{ vm_name }}"
           - --ram=2048
           - --vcpus=2
           - --import

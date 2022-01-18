@@ -1,13 +1,9 @@
 ---
 - name: Cleanup VM
   hosts: localhost
-  vars:
-    vm_name: my-cloud
-    target_dir: /home/martin/tmp
-    dest_path: '{{ target_dir }}/{{ vm_name }}_disk.img'
-    user_data: '{{ target_dir }}/{{ vm_name }}_user-data.yaml'
-    meta_data: '{{ target_dir }}/{{ vm_name }}_meta-data.yaml'
   tasks:
+    - name: Load common variables
+      include_vars: common-vars.yaml
     - name: Shutdown VM
       command: "virsh -c qemu:///system shutdown {{ vm_name }}"
       ignore_errors: yes
