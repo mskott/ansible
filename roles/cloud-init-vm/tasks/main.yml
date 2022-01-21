@@ -6,15 +6,18 @@
 - name: Create disk image
   command:
     cmd: "qemu-img create -b {{ base_image|quote }} -f qcow2 -F qcow2 {{ dest_path|quote }} {{ disk_size }}"
-    creates: "{{ dest_path }}"
+    creates: "{{ dest_path|quote }}"
+  when: vm_name not in machines.stdout_lines
 - name: Write meta-data.yaml
   template:
     src: meta-data.yaml.j2
     dest: '{{ meta_data }}'
+  when: vm_name not in machines.stdout_lines
 - name: Write user-data.yaml
   template:
     src: user-data.yaml.j2
     dest: '{{ user_data }}'
+  when: vm_name not in machines.stdout_lines
 - name: Create VM
   command:
     argv:
@@ -30,3 +33,11 @@
       - --connect=qemu:///system
       - --noautoconsole
   when: vm_name not in machines.stdout_lines
+- name: Cleanup meta-data.yaml
+  file:
+    path: '{{ meta_data }}'
+    state: absent
+- name: Cleanup user-data.yaml
+  file:
+    path: '{{ user_data }}'
+    state: absent
