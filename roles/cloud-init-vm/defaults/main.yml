@@ -1,0 +1,13 @@
+---
+# Base image in QCow2 format
+base_image: /home/martin/Downloads/debian-11-generic-amd64.qcow2
+
+# Directory where disk image and .yaml files will be placed
+target_dir: /home/martin/tmp
+
+# Size of VM virtual disk
+disk_size: 10G
+
+dest_path: '{{ target_dir }}/{{ vm_name }}_disk.img'
+user_data: '{{ target_dir }}/{{ vm_name }}_user-data.yaml'
+meta_data: '{{ target_dir }}/{{ vm_name }}_meta-data.yaml'

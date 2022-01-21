@@ -1,0 +1,32 @@
+---
+- name: Get list of VMs
+  command:
+    cmd: virsh -c qemu:///system list --name --all
+  register: machines
+- name: Create disk image
+  command:
+    cmd: "qemu-img create -b {{ base_image|quote }} -f qcow2 -F qcow2 {{ dest_path|quote }} {{ disk_size }}"
+    creates: "{{ dest_path }}"
+- name: Write meta-data.yaml
+  template:
+    src: meta-data.yaml.j2
+    dest: '{{ meta_data }}'
+- name: Write user-data.yaml
+  template:
+    src: user-data.yaml.j2
+    dest: '{{ user_data }}'
+- name: Create VM
+  command:
+    argv:
+      - virt-install
+      - "--name={{ vm_name }}"
+      - --ram=2048
+      - --vcpus=2
+      - --import
+      - "--disk=path={{ dest_path }}"
+      - --os-variant=debian11
+      - "--cloud-init=user-data={{ user_data|quote }},meta-data={{ meta_data|quote }},disable=on,root-password-generate=on"
+      - --network=network=default
+      - --connect=qemu:///system
+      - --noautoconsole
+  when: vm_name not in machines.stdout_lines
