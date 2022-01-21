@@ -1,0 +1,5 @@
+---
+# Directory where disk image and .yaml files will be placed
+target_dir: /home/martin/tmp
+
+dest_path: '{{ target_dir }}/{{ vm_name }}_disk.img'

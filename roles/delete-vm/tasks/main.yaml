@@ -1,0 +1,11 @@
+---
+- name: Shutdown VM
+  command: "virsh -c qemu:///system shutdown {{ vm_name }}"
+  ignore_errors: yes
+- name: Remove VM
+  command: "virsh -c qemu:///system undefine {{ vm_name }}"
+  ignore_errors: yes
+- name:  Remove disk image
+  file:
+    path: "{{ dest_path }}"
+    state: absent
