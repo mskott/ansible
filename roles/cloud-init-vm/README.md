@@ -31,19 +31,40 @@ Example Playbook
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-	- name: Create 3 VMs
-	  hosts: localhost
-	  roles:
-	    - role: cloud-init-vm
-          vars:
-            vm_name: vm_kafka-01
-        - role: cloud-init-vm
-          vars:
-            vm_name: vm_kafka-02
-        - role: cloud-init-vm
-          vars:
-            vm_name: vm_kafka-03
+```yaml
+- name: Create 3 VMs
+  hosts: localhost
+  roles:
+    - role: cloud-init-vm
+      vars:
+        vm_name: vm_kafka-01
+    - role: cloud-init-vm
+      vars:
+        vm_name: vm_kafka-02
+    - role: cloud-init-vm
+      vars:
+        vm_name: vm_kafka-03
 
+#Alternative method using tags
+- name: Create 3 VMs
+  hosts: localhost
+  vars:
+    machines:
+      - vm-kafka-01
+      - vm-kafka-02
+      - vm-kafka-03
+  tasks:
+    # Create VMs
+    - include_role:
+        name: cloud-init-vm
+        apply:
+          tags: always
+      vars:
+        vm_name: "{{ item }}"
+      loop: "{{ machines }}"
+      tags: create
+
+```
 
 License
 -------
