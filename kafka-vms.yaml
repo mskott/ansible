@@ -1,5 +1,5 @@
 ---
-- name: Create 3 VMs
+- name: Manage 3 VMs
   hosts: localhost
   gather_facts: no
   vars:
@@ -26,3 +26,15 @@
         vm_name: "{{ item }}"
       loop: "{{ machines }}"
       tags: destroy
+    # Shutdown VMs
+    - name: Shutdown VMs
+      command: "virsh -c qemu:///system shutdown --domain {{ item }}"
+      ignore_errors: yes
+      loop: "{{ machines }}"
+      tags: shutdown
+    # Start VMs
+    - name: Start VMs
+      command: "virsh -c qemu:///system start --domain {{ item }}"
+      ignore_errors: yes
+      loop: "{{ machines }}"
+      tags: start
