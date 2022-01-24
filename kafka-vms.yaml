@@ -1,28 +1,28 @@
 ---
-- name: Create 3 Kafka VMs
+- name: Create 3 VMs
   hosts: localhost
-  tags: create
-  roles:
-    - role: cloud-init-vm
+  gather_facts: no
+  vars:
+    machines:
+      - vm-kafka-01
+      - vm-kafka-02
+      - vm-kafka-03
+  tasks:
+    # Create VMs
+    - include_role:
+        name: cloud-init-vm
+        apply:
+          tags: always
       vars:
-        vm_name: vm-kafka-01
-    - role: cloud-init-vm
+        vm_name: "{{ item }}"
+      loop: "{{ machines }}"
+      tags: create
+    # Destroy VMs
+    - include_role:
+        name: delete-vm
+        apply:
+          tags: always
       vars:
-        vm_name: vm-kafka-02
-    - role: cloud-init-vm
-      vars:
-        vm_name: vm-kafka-03
-
-- name: Destroy 3 Kafka VMs
-  hosts: localhost
-  tags: destroy
-  roles:
-    - role: delete-vm
-      vars:
-        vm_name: vm-kafka-01
-    - role: delete-vm
-      vars:
-        vm_name: vm-kafka-02
-    - role: delete-vm
-      vars:
-        vm_name: vm-kafka-03
+        vm_name: "{{ item }}"
+      loop: "{{ machines }}"
+      tags: destroy
