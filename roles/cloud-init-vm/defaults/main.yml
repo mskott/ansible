@@ -8,6 +8,18 @@ target_dir: /home/martin/tmp
 # Size of VM virtual disk
 disk_size: 10G
 
+# Memory in MiB
+memory: 2048
+
+# Virtual CPUs
+vcpus: 2
+
+# OS Variant
+os_variant: debian11
+
+# Network
+network: network=default
+
 dest_path: '{{ target_dir }}/{{ vm_name }}_disk.img'
 user_data: '{{ target_dir }}/{{ vm_name }}_user-data.yaml'
 meta_data: '{{ target_dir }}/{{ vm_name }}_meta-data.yaml'

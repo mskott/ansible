@@ -23,13 +23,13 @@
     argv:
       - virt-install
       - "--name={{ vm_name }}"
-      - --ram=2048
-      - --vcpus=2
+      - "--memory={{ memory }}"
+      - "--vcpus={{ vcpus }}"
       - --import
       - "--disk=path={{ dest_path }}"
-      - --os-variant=debian11
+      - "--os-variant={{ os_variant }}"
       - "--cloud-init=user-data={{ user_data|quote }},meta-data={{ meta_data|quote }},disable=on,root-password-generate=on"
-      - --network=network=default
+      - "--network={{ network }}"
       - --connect=qemu:///system
       - --noautoconsole
   when: vm_name not in machines.stdout_lines
