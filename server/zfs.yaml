@@ -1,0 +1,35 @@
+---
+# Install and configure ZFS.
+# Based on https://openzfs.github.io/openzfs-docs/Getting%20Started/Fedora/index.html
+- name: Remove zfs-fuse
+  hosts: zfs
+  become: yes
+  tasks:
+    - dnf:
+        name: zfs-fuse
+        state: absent
+
+- name: Add ZFS repo
+  hosts: zfs
+  become: yes
+  tasks:
+    - dnf:
+        name: 'https://zfsonlinux.org/fedora/zfs-release.fc{{ ansible_distribution_major_version }}.noarch.rpm'
+        state: present
+        disable_gpg_check: yes
+
+- name: Install kernel-headers
+  hosts: zfs
+  become: yes
+  tasks:
+    - dnf:
+        name: kernel-headers
+        state: latest
+
+- name: Install ZFS
+  hosts: zfs
+  become: yes
+  tasks:
+    - dnf:
+        name: zfs
+        state: latest
