@@ -1,6 +1,6 @@
 ---
 # Setup the most basic things required to run other playbooks
-- name: Ansible requries libselinux-python
+- name: Ansible requires libselinux-python
   hosts: all
   become: yes
   tasks:
