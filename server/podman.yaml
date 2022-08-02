@@ -8,6 +8,14 @@
           - podman
           - cockpit-podman
         state: latest
+- name: Enable Podman socket
+  hosts: server
+  become: yes
+  tasks:
+    - systemd:
+        name: podman.socket
+        enabled: yes
+        state: started
 - name: Enable auto-update timer
   hosts: server
   become: yes
