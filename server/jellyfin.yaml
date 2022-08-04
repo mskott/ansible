@@ -1,56 +1,50 @@
 ---
-- name: Create directories
-  hosts: jellyfin
-  tasks:
-    - file:
-        path: '{{ item }}'
-        state: directory
-        mode: 0755
-        recurse: true
-      loop:
-        - '{{ jellyfin_cache }}'
-        - '{{ jellyfin_config }}'
-        - '{{ jellyfin_media }}'
+# - name: Create directories
+#   hosts: jellyfin
+#   tasks:
+#     - file:
+#         path: '{{ item }}'
+#         state: directory
+#         mode: 0755
+#         recurse: true
+#       loop:
+#         - '{{ jellyfin_cache }}'
+#         - '{{ jellyfin_config }}'
+#         - '{{ jellyfin_media }}'
 
 ## This is how the .service file for Systemd was generated, but it interferes with
 ## the service now that it is running
-# - name: Run container
-#   hosts: jellyfin
-#   tasks:
-#     - containers.podman.podman_container:
-#         name: Jellyfin
-#         image: docker.io/jellyfin/jellyfin:latest
-#         label: "io.containers.autoupdate=registry"
-#         state: created
-#         volumes:
-#           - '{{ jellyfin_cache }}:/cache:Z'
-#           - '{{ jellyfin_config }}:/config:Z'
-#           - '{{ jellyfin_media }}:/media:ro,z'
-#         publish:
-#           - 8096:8096/tcp
-#         userns: keep-id
-#         user: 1000:1000
-#         generate_systemd:
-#           path: /home/martin/tmp
-#           restart_policy: always
-#           new: yes
-
-- name: Write Jellyfin service definition
+- name: Create Jellyfin container
   hosts: jellyfin
-  become: yes
   tasks:
-    - file:
-        path: /usr/local/lib/systemd/system
-        owner: root
-        group: root
-        mode: 0755
-        state: directory
-    - template:
-        src: container-Jellyfin.service.j2
-        dest: /usr/local/lib/systemd/system/container-Jellyfin.service
-        owner: root
-        group: root
-        mode: 0644
+    - containers.podman.podman_container:
+        name: jellyfin
+        image: docker.io/jellyfin/jellyfin:latest
+        label: "io.containers.autoupdate=registry"
+        state: present
+        volumes:
+          - '{{ jellyfin_cache }}:/cache:Z'
+          - '{{ jellyfin_config }}:/config:Z'
+          - '{{ jellyfin_media }}:/media'
+        publish:
+          - 8096:8096/tcp
+        #See: https://www.redhat.com/sysadmin/files-devices-podman
+        group_add: keep-groups
+        device:
+          - /dev/dri
+          # - /dev/dri/card1
+          # - /dev/dri/renderD128
+        userns: keep-id
+        user: '{{ ansible_user_uid }}:{{ ansible_user_gid }}'
+        generate_systemd:
+          path: '{{ ansible_user_dir }}/.config/systemd/user/'
+          restart_policy: always
+          new: yes
+
+## TODO:
+##  - Enable systemd service
+##  - Use "loginctl enable-linger" to launch service on boot.
+##    See https://jellyfin.org/docs/general/administration/installing.html#podman
 
 - name: Configure firewall
   hosts: jellyfin
