@@ -1,4 +1,7 @@
 ---
+## TODO:
+##  - SELinux policy allowing ffmpeg to map dri_device
+
 # - name: Create directories
 #   hosts: jellyfin
 #   tasks:
@@ -12,8 +15,6 @@
 #         - '{{ jellyfin_config }}'
 #         - '{{ jellyfin_media }}'
 
-## This is how the .service file for Systemd was generated, but it interferes with
-## the service now that it is running
 - name: Create Jellyfin container
   hosts: jellyfin
   tasks:
@@ -41,10 +42,30 @@
           restart_policy: always
           new: yes
 
-## TODO:
-##  - Enable systemd service
-##  - Use "loginctl enable-linger" to launch service on boot.
-##    See https://jellyfin.org/docs/general/administration/installing.html#podman
+- name: Allow containers access to devices
+  hosts: jellyfin
+  become: yes
+  tasks:
+    - ansible.posix.seboolean:
+        name: container_use_devices
+        state: yes
+        persistent: yes
+
+- name: Enable Jellyfin service
+  hosts: jellyfin
+  tasks:
+    - systemd:
+        name: container-jellyfin.service
+        scope: user
+        #Podman likes to update unit file
+        daemon_reload: yes
+        enabled: yes
+        state: started
+
+- name: Enable linger for user
+  hosts: jellyfin
+  tasks:
+    - command: loginctl enable-linger {{ ansible_user_id }}
 
 - name: Configure firewall
   hosts: jellyfin
