@@ -8,8 +8,8 @@
       - vm-kafka-02
       - vm-kafka-03
   tasks:
-    # Create VMs
-    - include_role:
+    - name: Create VMs
+      ansible.builtin.include_role:
         name: cloud-init-vm
         apply:
           tags: always
@@ -17,8 +17,8 @@
         vm_name: "{{ item }}"
       loop: "{{ machines }}"
       tags: create
-    # Destroy VMs
-    - include_role:
+    - name: Destroy VMs
+      ansible.builtin.include_role:
         name: delete-vm
         apply:
           tags: always
@@ -28,13 +28,13 @@
       tags: destroy
     # Shutdown VMs
     - name: Shutdown VMs
-      command: "virsh -c qemu:///system shutdown --domain {{ item }}"
+      ansible.builtin.command: "virsh -c qemu:///system shutdown --domain {{ item }}"
       ignore_errors: yes
       loop: "{{ machines }}"
       tags: shutdown
     # Start VMs
     - name: Start VMs
-      command: "virsh -c qemu:///system start --domain {{ item }}"
+      ansible.builtin.command: "virsh -c qemu:///system start --domain {{ item }}"
       ignore_errors: yes
       loop: "{{ machines }}"
       tags: start
