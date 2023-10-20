@@ -1,25 +1,26 @@
 ---
 - name: Get list of VMs
-  command:
+  ansible.builtin.command:
     cmd: virsh -c qemu:///system list --name --all
   register: machines
+  changed_when: false
 - name: Create disk image
-  command:
-    cmd: "qemu-img create -b {{ base_image|quote }} -f qcow2 -F qcow2 {{ dest_path|quote }} {{ disk_size }}"
-    creates: "{{ dest_path|quote }}"
+  ansible.builtin.command:
+    cmd: "qemu-img create -b {{ base_image | quote }} -f qcow2 -F qcow2 {{ dest_path | quote }} {{ disk_size }}"
+    creates: "{{ dest_path | quote }}"
   when: vm_name not in machines.stdout_lines
 - name: Write meta-data.yaml
-  template:
+  ansible.builtin.template:
     src: meta-data.yaml.j2
     dest: '{{ meta_data }}'
   when: vm_name not in machines.stdout_lines
 - name: Write user-data.yaml
-  template:
+  ansible.builtin.template:
     src: user-data.yaml.j2
     dest: '{{ user_data }}'
   when: vm_name not in machines.stdout_lines
 - name: Create VM
-  command:
+  ansible.builtin.command:
     argv:
       - virt-install
       - "--name={{ vm_name }}"
@@ -28,16 +29,16 @@
       - --import
       - "--disk=path={{ dest_path }}"
       - "--os-variant={{ os_variant }}"
-      - "--cloud-init=user-data={{ user_data|quote }},meta-data={{ meta_data|quote }},disable=on,root-password-generate=on"
+      - "--cloud-init=user-data={{ user_data | quote }},meta-data={{ meta_data | quote }},disable=on,root-password-generate=on"
       - "--network={{ network }}"
       - --connect=qemu:///system
       - --noautoconsole
   when: vm_name not in machines.stdout_lines
 - name: Cleanup meta-data.yaml
-  file:
+  ansible.builtin.file:
     path: '{{ meta_data }}'
     state: absent
 - name: Cleanup user-data.yaml
-  file:
+  ansible.builtin.file:
     path: '{{ user_data }}'
     state: absent
