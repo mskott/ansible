@@ -33,3 +33,13 @@
     - dnf:
         name: zfs
         state: latest
+
+## Un-tested, its a good idea, but need to configure pool name
+# - name: Enable ZFS scrub timer
+#   hosts: zfs
+#   become: true
+#   tasks:
+#    - ansible.builtin.systemd:
+#       name: 'zfs-scrub-monthly@{{ pool name }}.timer'
+#       state: started
+#       enabled: true
