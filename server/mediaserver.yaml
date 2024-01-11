@@ -1,4 +1,7 @@
 ---
-- hosts: jellyfin
+- name: Configure a mediaserver
+  hosts: jellyfin
   roles:
+    - common
+    - podman
     - jellyfin
