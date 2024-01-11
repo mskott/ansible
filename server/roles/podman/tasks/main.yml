@@ -1,0 +1,20 @@
+---
+- name: Install podman
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ podman_packages }}"
+    state: present
+
+- name: Enable Podman socket
+  become: true
+  ansible.builtin.systemd_service:
+    name: podman.socket
+    enabled: true
+    state: started
+
+- name: Enable auto-update timer
+  ansible.builtin.systemd_service:
+    name: podman-auto-update.timer
+    enabled: yes
+    state: started
+    scope: user  
