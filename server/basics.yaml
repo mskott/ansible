@@ -1,27 +1,5 @@
 ---
 # Setup the most basic things required to run other playbooks
-- name: Ansible requires libselinux-python
-  hosts: all
-  become: yes
-  tasks:
-    - dnf:
-        name: python3-libselinux
-        state: latest
-
-- name: Setup sudoers
-  hosts: all
-  become: yes
-  tasks:
-    - lineinfile:
-        path: /etc/sudoers.d/10-martin
-        line: 'martin ALL=(ALL) NOPASSWD: ALL'
-        state: present
-        mode: 0440
-        owner: root
-        group: root
-        create: yes
-        validate: 'visudo -cf %s'
-
 - name: Install dnf-automatic
   hosts: all
   become: yes

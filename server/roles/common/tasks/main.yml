@@ -1,0 +1,18 @@
+---
+- name: Ansible requires libselinux-python
+  become: true
+  ansible.builtin.dnf:
+    name: python3-libselinux
+    state: present
+
+- name: Setup sudoers
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers.d/10-martin
+    line: 'martin ALL=(ALL) NOPASSWD: ALL'
+    state: present
+    mode: '0440'
+    owner: root
+    group: root
+    create: true
+    validate: 'visudo -cf %s'
