@@ -1,0 +1,24 @@
+[Unit]
+Description=The Jellyfin media server in a container
+
+[Container]
+ContainerName=Jellyfin
+Label=app=jellyfin
+Image=docker.io/jellyfin/jellyfin:latest
+AutoUpdate=registry
+Volume={{ jellyfin_cache }}:/cache:Z
+Volume={{ jellyfin_config }}:/config:Z
+Volume={{ jellyfin_media }}:/media:ro,z
+PublishPort=8096:8096/tcp
+#TODO: group_add: keep-groups
+AddDevice=/dev/dri
+UserNS=keep-id
+User={{ ansible_user_uid }}:{{ ansible_user_gid }}
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+# Start service on boot
+WantedBy=multi-user.target default.target
