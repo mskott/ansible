@@ -6,8 +6,8 @@ ContainerName=Jellyfin
 Label=app=jellyfin
 Image=docker.io/jellyfin/jellyfin:latest
 AutoUpdate=registry
-Volume={{ jellyfin_cache }}:/cache:Z
-Volume={{ jellyfin_config }}:/config:Z
+Volume={{ jellyfin_cache }}:/cache
+Volume={{ jellyfin_config }}:/config
 Volume={{ jellyfin_media }}:/media:ro,z
 PublishPort=8096:8096/tcp
 #TODO: group_add: keep-groups

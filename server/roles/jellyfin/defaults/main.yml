@@ -1,0 +1,3 @@
+---
+jellyfin_cache: jellyfin-cache.volume
+jellyfin_config: jellyfin-config.volume

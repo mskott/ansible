@@ -5,6 +5,22 @@
     state: directory
     mode: '0755'
 
+- name: Write systemd unit for config volume
+  ansible.builtin.template:
+    src: 'jellyfin-config.volume.j2'
+    dest: '{{ ansible_user_dir }}/.config/containers/systemd/jellyfin-config.volume'
+    mode: '0644'
+  notify:
+    - jellyfin_restart
+
+- name: Write systemd unit for cache volume
+  ansible.builtin.template:
+    src: 'jellyfin-cache.volume.j2'
+    dest: '{{ ansible_user_dir }}/.config/containers/systemd/jellyfin-cache.volume'
+    mode: '0644'
+  notify:
+    - jellyfin_restart
+
 - name: Write systemd unit for container
   ansible.builtin.template:
     src: 'jellyfin.container.j2'
