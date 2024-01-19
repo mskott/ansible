@@ -1,0 +1,22 @@
+---
+- name: Install Cockpit
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ cockpit_packages }}"
+    state: present
+
+- name: Enable and start Cockpit
+  become: true
+  ansible.builtin.systemd_service:
+    name: cockpit.socket
+    enabled: yes
+    state: started
+
+- name: Setup firewall to allow Cockpit
+  become: true
+  ansible.posix.firewalld:
+    service: cockpit
+    permanent: yes
+    state: enabled
+    zone: public
+    immediate: yes
