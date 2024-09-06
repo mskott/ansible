@@ -1,0 +1,103 @@
+---
+- name: Create Immich pod
+  containers.podman.podman_pod:
+    name: immich
+    state: quadlet
+    label:
+      app: immich
+    ports:
+      - "3001:3001"
+
+- name: Create PostgreSQL data volume
+  containers.podman.podman_volume:
+    name: immich-postgresql-data
+    label:
+      app: immich
+    state: quadlet
+
+- name: Create secret with PostgreSQL username
+  containers.podman.podman_secret:
+    name: immich-postgresql-user
+    labels:
+      app: immich
+    data: "immich"
+
+- name: Create secret with random PostgreSQL password
+  containers.podman.podman_secret:
+    name: immich-postgresql-password
+    labels:
+      app: immich
+    data: "{{ lookup('ansible.builtin.password', '/dev/null', lenght=20) }}"
+    skip_existing: true
+
+- name: Create PostgreSQL container for Immich
+  containers.podman.podman_container:
+    name: immich-postgresql
+    pod: immich.pod
+    label:
+      app: immich
+    image: registry.hub.docker.com/tensorchord/pgvecto-rs:pg16-v0.2.1
+    state: quadlet
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "immich-postgresql-data.volume:/var/lib/postgresql/data:z"
+    secrets:
+      - "immich-postgresql-user,type=env,target=POSTGRES_USER"
+      - "immich-postgresql-password,type=env,target=POSTGRES_PASSWORD"
+    env:
+      POSTGRES_DB: 'immich'
+      POSTGRES_INITDB_ARGS: '--data-checksums'
+
+- name: Create Redis container
+  containers.podman.podman_container:
+    name: immich-redis
+    label:
+      app: immich
+    pod: immich.pod
+    image: registry.hub.docker.com/library/redis:6.2-alpine@sha256:51d6c56749a4243096327e3fb964a48ed92254357108449cb6e23999c37773c5
+    state: quadlet
+    rm: true
+
+- name: Create Immich data volume
+  containers.podman.podman_volume:
+    name: immich-data
+    label:
+      app: immich
+    state: quadlet
+
+- name: Create Immich server container
+  containers.podman.podman_container:
+    name: immich-server
+    pod: immich.pod
+    label:
+      app: immich
+    state: quadlet
+    image: ghcr.io/immich-app/immich-server:release
+    volume:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "immich-data.volume:/usr/src/app/upload:z"
+    env:
+      DB_HOSTNAME: localhost
+      DB_DATABASE_NAME: immich
+      REDIS_HOSTNAME: localhost
+    secrets:
+      - "immich-postgresql-user,type=env,target=DB_USERNAME"
+      - "immich-postgresql-password,type=env,target=DB_PASSWORD"
+
+- name: Create volume for Immich model cache
+  containers.podman.podman_volume:
+    name: immich-model-cache
+    label:
+      app: immich
+    state: quadlet
+
+- name: Create Immich ML container
+  containers.podman.podman_container:
+    name: immich-ml
+    pod: immich.pod
+    label:
+      app: immich
+    state: quadlet
+    image: ghcr.io/immich-app/immich-machine-learning:release
+    volume:
+      - "immich-model-cache.volume:/cache"
