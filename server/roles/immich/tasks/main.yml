@@ -7,6 +7,8 @@
       app: immich
     ports:
       - "3001:3001"
+  notify:
+    - reload systemd
 
 - name: Create PostgreSQL data volume
   containers.podman.podman_volume:
@@ -14,6 +16,8 @@
     label:
       app: immich
     state: quadlet
+  notify:
+    - reload systemd
 
 - name: Create secret with PostgreSQL username
   containers.podman.podman_secret:
@@ -21,6 +25,8 @@
     labels:
       app: immich
     data: "immich"
+  notify:
+    - reload systemd
 
 - name: Create secret with random PostgreSQL password
   containers.podman.podman_secret:
@@ -29,6 +35,8 @@
       app: immich
     data: "{{ lookup('ansible.builtin.password', '/dev/null', lenght=20) }}"
     skip_existing: true
+  notify:
+    - reload systemd
 
 - name: Create PostgreSQL container for Immich
   containers.podman.podman_container:
@@ -51,6 +59,8 @@
       - |
         [Install]
         RequiredBy=immich-server.service
+  notify:
+    - reload systemd
 
 - name: Create Redis container
   containers.podman.podman_container:
@@ -65,6 +75,8 @@
       - |
         [Install]
         RequiredBy=immich-server.service
+  notify:
+    - reload systemd
 
 - name: Create Immich data volume
   containers.podman.podman_volume:
@@ -72,6 +84,8 @@
     label:
       app: immich
     state: quadlet
+  notify:
+    - reload systemd
 
 - name: Create Immich server container
   containers.podman.podman_container:
@@ -91,6 +105,8 @@
     secrets:
       - "immich-postgresql-user,type=env,target=DB_USERNAME"
       - "immich-postgresql-password,type=env,target=DB_PASSWORD"
+  notify:
+    - reload systemd
 
 - name: Create volume for Immich model cache
   containers.podman.podman_volume:
@@ -98,6 +114,8 @@
     label:
       app: immich
     state: quadlet
+  notify:
+    - reload systemd
 
 - name: Create Immich ML container
   containers.podman.podman_container:
@@ -113,3 +131,5 @@
       - |
         [Install]
         RequiredBy=immich-server.service
+  notify:
+    - reload systemd
