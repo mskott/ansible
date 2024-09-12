@@ -1,0 +1,17 @@
+---
+- name: Create Redis container
+  containers.podman.podman_container:
+    name: immich-redis
+    label:
+      app: immich
+    pod: immich.pod
+    image: "{{ immich_redis_image }}:{{ immich_redis_tag }}"
+    state: quadlet
+    rm: true
+    quadlet_options:
+      - "AutoUpdate=registry"
+      - |
+        [Install]
+        RequiredBy=immich-server.service
+  notify:
+    - reload systemd

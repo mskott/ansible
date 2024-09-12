@@ -1,0 +1,11 @@
+---
+- name: Create Immich pod
+  containers.podman.podman_pod:
+    name: immich
+    state: quadlet
+    label:
+      app: immich
+    ports:
+      - "3001:3001"
+  notify:
+    - reload systemd

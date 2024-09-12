@@ -1,0 +1,53 @@
+---
+- name: Create PostgreSQL data volume
+  containers.podman.podman_volume:
+    name: immich-postgresql-data
+    label:
+      app: immich
+    state: quadlet
+  notify:
+    - reload systemd
+
+- name: Create secret with PostgreSQL username
+  containers.podman.podman_secret:
+    name: immich-postgresql-user
+    labels:
+      app: immich
+    data: "immich"
+  notify:
+    - reload systemd
+
+- name: Create secret with random PostgreSQL password
+  containers.podman.podman_secret:
+    name: immich-postgresql-password
+    labels:
+      app: immich
+    data: "{{ lookup('ansible.builtin.password', '/dev/null', lenght=20) }}"
+    skip_existing: true
+  notify:
+    - reload systemd
+
+- name: Create PostgreSQL container for Immich
+  containers.podman.podman_container:
+    name: immich-postgresql
+    pod: immich.pod
+    label:
+      app: immich
+    image: "{{ immich_postgresql_image }}:{{ immich_postgresql_tag }}"
+    state: quadlet
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "immich-postgresql-data.volume:/var/lib/postgresql/data:z"
+    secrets:
+      - "immich-postgresql-user,type=env,target=POSTGRES_USER"
+      - "immich-postgresql-password,type=env,target=POSTGRES_PASSWORD"
+    env:
+      POSTGRES_DB: '{{ immich_postgresql_dbname }}'
+      POSTGRES_INITDB_ARGS: '--data-checksums'
+    quadlet_options:
+      - "AutoUpdate=registry"
+      - |
+        [Install]
+        RequiredBy=immich-server.service
+  notify:
+    - reload systemd

@@ -1,0 +1,30 @@
+---
+- name: Create Immich data volume
+  containers.podman.podman_volume:
+    name: immich-data
+    label:
+      app: immich
+    state: quadlet
+  notify:
+    - reload systemd
+
+- name: Create Immich server container
+  containers.podman.podman_container:
+    name: immich-server
+    pod: immich.pod
+    label:
+      app: immich
+    state: quadlet
+    image: "{{ immich_server_image }}:{{ immich_server_tag }}"
+    volume:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "immich-data.volume:/usr/src/app/upload:z"
+    env:
+      DB_HOSTNAME: localhost
+      DB_DATABASE_NAME: '{{ immich_postgresql_dbname }}'
+      REDIS_HOSTNAME: localhost
+    secrets:
+      - "immich-postgresql-user,type=env,target=DB_USERNAME"
+      - "immich-postgresql-password,type=env,target=DB_PASSWORD"
+  notify:
+    - reload systemd

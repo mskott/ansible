@@ -1,0 +1,27 @@
+---
+- name: Create volume for Immich model cache
+  containers.podman.podman_volume:
+    name: immich-model-cache
+    label:
+      app: immich
+    state: quadlet
+  notify:
+    - reload systemd
+
+- name: Create Immich ML container
+  containers.podman.podman_container:
+    name: immich-ml
+    pod: immich.pod
+    label:
+      app: immich
+    state: quadlet
+    image: "{{ immich_ml_image }}:{{ immich_ml_tag }}"
+    volume:
+      - "immich-model-cache.volume:/cache"
+    quadlet_options:
+      - "AutoUpdate=registry"
+      - |
+        [Install]
+        RequiredBy=immich-server.service
+  notify:
+    - reload systemd
