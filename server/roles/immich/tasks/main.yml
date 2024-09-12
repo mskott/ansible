@@ -44,7 +44,7 @@
     pod: immich.pod
     label:
       app: immich
-    image: registry.hub.docker.com/tensorchord/pgvecto-rs:pg16-v0.2.1
+    image: "{{ immich_postgresql_image }}:{{ immich_postgresql_tag }}"
     state: quadlet
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
@@ -53,7 +53,7 @@
       - "immich-postgresql-user,type=env,target=POSTGRES_USER"
       - "immich-postgresql-password,type=env,target=POSTGRES_PASSWORD"
     env:
-      POSTGRES_DB: 'immich'
+      POSTGRES_DB: '{{ immich_postgresql_dbname }}'
       POSTGRES_INITDB_ARGS: '--data-checksums'
     quadlet_options:
       - "AutoUpdate=registry"
@@ -69,7 +69,7 @@
     label:
       app: immich
     pod: immich.pod
-    image: registry.hub.docker.com/library/redis:6.2-alpine@sha256:51d6c56749a4243096327e3fb964a48ed92254357108449cb6e23999c37773c5
+    image: "{{ immich_redis_image }}:{{ immich_redis_tag }}"
     state: quadlet
     rm: true
     quadlet_options:
@@ -96,13 +96,13 @@
     label:
       app: immich
     state: quadlet
-    image: ghcr.io/immich-app/immich-server:release
+    image: "{{ immich_server_image }}:{{ immich_server_tag }}"
     volume:
       - "/etc/localtime:/etc/localtime:ro"
       - "immich-data.volume:/usr/src/app/upload:z"
     env:
       DB_HOSTNAME: localhost
-      DB_DATABASE_NAME: immich
+      DB_DATABASE_NAME: '{{ immich_postgresql_dbname }}'
       REDIS_HOSTNAME: localhost
     secrets:
       - "immich-postgresql-user,type=env,target=DB_USERNAME"
@@ -126,7 +126,7 @@
     label:
       app: immich
     state: quadlet
-    image: ghcr.io/immich-app/immich-machine-learning:release
+    image: "{{ immich_ml_image }}:{{ immich_ml_tag }}"
     volume:
       - "immich-model-cache.volume:/cache"
     quadlet_options:
