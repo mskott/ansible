@@ -56,6 +56,7 @@
       POSTGRES_DB: 'immich'
       POSTGRES_INITDB_ARGS: '--data-checksums'
     quadlet_options:
+      - "AutoUpdate=registry"
       - |
         [Install]
         RequiredBy=immich-server.service
@@ -72,6 +73,7 @@
     state: quadlet
     rm: true
     quadlet_options:
+      - "AutoUpdate=registry"
       - |
         [Install]
         RequiredBy=immich-server.service
@@ -128,6 +130,7 @@
     volume:
       - "immich-model-cache.volume:/cache"
     quadlet_options:
+      - "AutoUpdate=registry"
       - |
         [Install]
         RequiredBy=immich-server.service
