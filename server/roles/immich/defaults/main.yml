@@ -1,10 +1,21 @@
 ---
+# Container images and tags to use
 immich_postgresql_image: registry.hub.docker.com/tensorchord/pgvecto-rs
 immich_postgresql_tag: pg16-v0.2.1
-immich_postgresql_dbname: immich
 immich_redis_image: registry.hub.docker.com/library/redis
 immich_redis_tag: 6.2-alpine@sha256:51d6c56749a4243096327e3fb964a48ed92254357108449cb6e23999c37773c5
 immich_server_image: ghcr.io/immich-app/immich-server
 immich_server_tag: release
 immich_ml_image: ghcr.io/immich-app/immich-machine-learning
 immich_ml_tag: release
+
+# Name of PostgreSQL database to connect to
+immich_postgresql_dbname: immich
+
+# Default volumes to attach to server container
+immich_default_volumes:
+  - "/etc/localtime:/etc/localtime:ro"
+  - "immich-data.volume:/usr/src/app/upload:z"
+
+# Optional extra volumes to attach to server
+immich_extra_volumes: []

@@ -16,9 +16,7 @@
       app: immich
     state: quadlet
     image: "{{ immich_server_image }}:{{ immich_server_tag }}"
-    volume:
-      - "/etc/localtime:/etc/localtime:ro"
-      - "immich-data.volume:/usr/src/app/upload:z"
+    volume: "{{ immich_default_volumes + immich_extra_volumes }}"
     env:
       DB_HOSTNAME: localhost
       DB_DATABASE_NAME: '{{ immich_postgresql_dbname }}'
